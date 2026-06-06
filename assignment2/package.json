@@ -1,0 +1,20 @@
+{
+  "name": "shopflo-assignment2-fakestore-api",
+  "version": "1.0.0",
+  "description": "API Automation for FakeStoreAPI – Shopflo QA Assessment",
+  "scripts": {
+    "test": "playwright test",
+    "test:cart": "playwright test tests/cart/",
+    "test:data-driven": "playwright test tests/data-driven/",
+    "test:contract": "playwright test tests/contract/",
+    "report": "playwright show-report playwright-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0",
+    "@types/node": "^20.14.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "express": "^5.2.1",
+    "typescript": "^5.4.5"
+  }
+}

@@ -1,0 +1,143 @@
+name: Shopflo QA Assessment — CI
+
+on:
+  push:
+    branches: [main, develop, "feat/**", "fix/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:   # allow manual trigger from GitHub UI
+
+jobs:
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Assignment 1 – UI Tests (SauceDemo)
+  # ══════════════════════════════════════════════════════════════════════════
+  assignment1-ui-tests:
+    name: "A1 – SauceDemo UI (${{ matrix.browser }})"
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false      # keep running other browsers if one fails
+      matrix:
+        browser: [chromium, firefox]
+
+    defaults:
+      run:
+        working-directory: assignment1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: assignment1/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser (${{ matrix.browser }})
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run UI tests on ${{ matrix.browser }}
+        run: npx playwright test --project=${{ matrix.browser }}
+        env:
+          CI: true
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "a1-report-${{ matrix.browser }}"
+          path: assignment1/playwright-report/
+          retention-days: 14
+
+      - name: Upload test results JSON
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "a1-results-json-${{ matrix.browser }}"
+          path: assignment1/test-results/results.json
+          retention-days: 14
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Assignment 2 – API Tests (FakeStoreAPI)
+  # ══════════════════════════════════════════════════════════════════════════
+  assignment2-api-tests:
+    name: "A2 – FakeStore API Tests"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: assignment2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: assignment2/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # API tests use Playwright's request context — no full browser needed.
+      # Installing chromium gives us the Playwright runtime without extra browser binaries.
+      - name: Install Playwright runtime
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Cart CRUD tests
+        run: npx playwright test tests/cart/
+        env:
+          CI: true
+
+      - name: Run Data-Driven tests
+        run: npx playwright test tests/data-driven/
+        env:
+          CI: true
+
+      - name: Run Contract tests
+        run: npx playwright test tests/contract/
+        env:
+          CI: true
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "a2-api-test-report"
+          path: assignment2/playwright-report/
+          retention-days: 14
+
+      - name: Upload test results JSON
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "a2-results-json"
+          path: assignment2/test-results/results.json
+          retention-days: 14
+
+  # ══════════════════════════════════════════════════════════════════════════
+  # Summary gate — both jobs must pass for the workflow to succeed
+  # ══════════════════════════════════════════════════════════════════════════
+  all-tests-passed:
+    name: "All tests passed"
+    runs-on: ubuntu-latest
+    needs: [assignment1-ui-tests, assignment2-api-tests]
+    if: always()
+    steps:
+      - name: Check all jobs succeeded
+        run: |
+          if [[ "${{ needs.assignment1-ui-tests.result }}" != "success" ]] || \
+             [[ "${{ needs.assignment2-api-tests.result }}" != "success" ]]; then
+            echo "One or more test jobs failed."
+            exit 1
+          fi
+          echo "All test jobs passed successfully."

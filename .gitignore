@@ -1,0 +1,15 @@
+node_modules/
+dist/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# Assignment outputs
+assignment1/test-results/
+assignment1/playwright-report/
+assignment2/test-results/
+assignment2/playwright-report/

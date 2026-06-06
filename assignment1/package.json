@@ -1,0 +1,22 @@
+{
+  "name": "shopflo-assignment1-saucedemo",
+  "version": "1.0.0",
+  "description": "UI Automation for SauceDemo – Shopflo QA Assessment",
+  "scripts": {
+    "test": "playwright test",
+    "test:auth": "playwright test tests/auth/",
+    "test:inventory": "playwright test tests/inventory/",
+    "test:cart": "playwright test tests/cart/",
+    "test:checkout": "playwright test tests/checkout/",
+    "test:e2e": "playwright test tests/e2e/",
+    "test:positive": "playwright test --grep @positive",
+    "test:negative": "playwright test --grep @negative",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report playwright-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0",
+    "@types/node": "^20.14.0",
+    "typescript": "^5.4.5"
+  }
+}

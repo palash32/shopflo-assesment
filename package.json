@@ -1,0 +1,10 @@
+{
+  "name": "shopflo-qa-assessment",
+  "version": "1.0.0",
+  "description": "Candidate: Palash Mishra — Manual Test Cases + UI Automation (Playwright) + API Test Suite",
+  "private": true,
+  "scripts": {},
+  "keywords": [],
+  "author": "Palash Mishra",
+  "license": "ISC"
+}
